@@ -2,6 +2,7 @@
 # originally based on this tutorial - https://realpython.com/how-to-make-a-discord-bot-python/
 import os
 import random
+from typing import Union
 
 import discord
 from discord.ext import commands
@@ -50,10 +51,28 @@ async def create_channel(context, channel_name='new-channel'):
         await guild.create_text_channel(channel_name)
 
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.errors.CheckFailure):
-        await ctx.send('You do not have the correct role for this command.')
+@bot.command(name='convert-temperature')
+async def create_channel(context, degrees: Union[int,float], temperature_units: str):
+    """
+    convert temperatures from Celsius to Fahrenheit
+    input should come int he form `$ [integer or float temperature] [either 'c' for celsius or 'f' for Fahrenheit]
+
+    e.g. `$ 15 C` to convert 15 degrees celsius to fahrenheit
+    """
+
+    #convert input string to lower case and pull out the first character
+    temperature_units = temperature_units.lower()
+    temperature_units = temperature_units[0]
+
+    if temperature_units == 'c':
+        converted_temp = (degrees * (9/5)) + 32
+        await context.send(f"{degrees} in Celsius is {converted_temp} in Fahrenheit")
+    elif temperature_units == 'f':
+        converted_temp = (degrees - 32) * (5/9)
+        await context.send(f"{degrees} in Fahrenheit is {converted_temp} in Celsius")
+    else:
+        await context.send(f"temperture units {temperature_units} not recognized, please input in units `C`, `Celsius`, `F`, or `Fahrenheit`")
+
 
 print(f'running with TOKEN for server: {GUILD}')
 bot.run(TOKEN)
